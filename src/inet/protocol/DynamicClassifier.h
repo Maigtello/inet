@@ -15,31 +15,35 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETCLASSIFIER_H
-#define __INET_PACKETCLASSIFIER_H
+#ifndef __INET_DYNAMICCLASSIFIER_H
+#define __INET_DYNAMICCLASSIFIER_H
 
-#include "inet/queueing/base/PacketClassifierBase.h"
+#include "inet/queueing/classifier/PacketClassifier.h"
 #include "inet/queueing/contract/IPacketClassifierFunction.h"
 
 namespace inet {
-namespace queueing {
 
-class INET_API PacketClassifier : public PacketClassifierBase
+using namespace inet::queueing;
+
+class INET_API DynamicClassifier : public PacketClassifier
 {
   protected:
-    IPacketClassifierFunction *packetClassifierFunction = nullptr;
+    const char *submoduleName = nullptr;
+    cModuleType *moduleType = nullptr;
+    std::map<int, int> classIndexToGateItMap;
 
   protected:
     virtual void initialize(int stage) override;
-    virtual IPacketClassifierFunction *createClassifierFunction(const char *classifierClass) const;
     virtual int classifyPacket(Packet *packet) override;
-
-  public:
-    virtual ~PacketClassifier() { delete packetClassifierFunction; }
 };
 
-} // namespace queueing
+class INET_API SequenceNumberPacketClassifierFunction : public cObject, public IPacketClassifierFunction
+{
+  protected:
+    virtual int classifyPacket(Packet *packet) const override;
+};
+
 } // namespace inet
 
-#endif // ifndef __INET_PACKETCLASSIFIER_H
+#endif // ifndef __INET_DYNAMICCLASSIFIER_H
 

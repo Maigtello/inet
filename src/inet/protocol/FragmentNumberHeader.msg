@@ -15,31 +15,14 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETFILTER_H
-#define __INET_PACKETFILTER_H
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
 
-#include "inet/queueing/base/PacketFilterBase.h"
-#include "inet/queueing/contract/IPacketFilterFunction.h"
+namespace inet;
 
-namespace inet {
-namespace queueing {
-
-class INET_API PacketFilter : public PacketFilterBase
+class FragmentNumberHeader extends FieldsChunk
 {
-  protected:
-    IPacketFilterFunction *packetFilterFunction = nullptr;
-
-  protected:
-    virtual void initialize(int stage) override;
-    virtual IPacketFilterFunction *createFilterFunction(const char *filterClass) const;
-    virtual bool matchesPacket(Packet *packet) override;
-
-  public:
-    virtual ~PacketFilter() { delete packetFilterFunction; }
-};
-
-} // namespace queueing
-} // namespace inet
-
-#endif // ifndef __INET_PACKETFILTER_H
-
+    chunkLength = B(1);
+    int fragmentNumber;
+    bool lastFragment;
+}

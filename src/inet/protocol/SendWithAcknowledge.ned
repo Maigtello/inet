@@ -15,31 +15,15 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETFILTER_H
-#define __INET_PACKETFILTER_H
+package inet.protocol;
 
-#include "inet/queueing/base/PacketFilterBase.h"
-#include "inet/queueing/contract/IPacketFilterFunction.h"
-
-namespace inet {
-namespace queueing {
-
-class INET_API PacketFilter : public PacketFilterBase
+simple SendWithAcknowledge
 {
-  protected:
-    IPacketFilterFunction *packetFilterFunction = nullptr;
-
-  protected:
-    virtual void initialize(int stage) override;
-    virtual IPacketFilterFunction *createFilterFunction(const char *filterClass) const;
-    virtual bool matchesPacket(Packet *packet) override;
-
-  public:
-    virtual ~PacketFilter() { delete packetFilterFunction; }
-};
-
-} // namespace queueing
-} // namespace inet
-
-#endif // ifndef __INET_PACKETFILTER_H
-
+    parameters:
+        double acknowledgeTimeout @unit(s);
+        @display("i=block/rxtx");
+    gates:
+        input in;
+        input ackIn;
+        output out;
+}

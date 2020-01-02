@@ -15,31 +15,36 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETCLASSIFIER_H
-#define __INET_PACKETCLASSIFIER_H
+#ifndef __INET_SENDWITHFRAGMENTATION_H
+#define __INET_SENDWITHFRAGMENTATION_H
 
-#include "inet/queueing/base/PacketClassifierBase.h"
-#include "inet/queueing/contract/IPacketClassifierFunction.h"
+#include "inet/protocol/IProtocol.h"
+#include "inet/queueing/base/PassivePacketSinkBase.h"
 
 namespace inet {
-namespace queueing {
 
-class INET_API PacketClassifier : public PacketClassifierBase
+using namespace inet::queueing;
+
+class INET_API Fragmentation : public PassivePacketSinkBase, public IProtocol
 {
   protected:
-    IPacketClassifierFunction *packetClassifierFunction = nullptr;
+    b fragmentLength = b(-1);
+
+    cGate *outputGate = nullptr;
+    IPassivePacketSink *consumer = nullptr;
 
   protected:
     virtual void initialize(int stage) override;
-    virtual IPacketClassifierFunction *createClassifierFunction(const char *classifierClass) const;
-    virtual int classifyPacket(Packet *packet) override;
 
   public:
-    virtual ~PacketClassifier() { delete packetClassifierFunction; }
+    virtual bool supportsPushPacket(cGate *gate) const override { return true; }
+    virtual bool supportsPopPacket(cGate *gate) const override { return false; }
+
+    virtual void pushPacket(Packet *packet, cGate *gate) override;
+    virtual void confirm(Packet *packet, bool successful) override;
 };
 
-} // namespace queueing
 } // namespace inet
 
-#endif // ifndef __INET_PACKETCLASSIFIER_H
+#endif // ifndef __INET_SENDWITHFRAGMENTATION_H
 

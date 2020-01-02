@@ -15,31 +15,27 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETSCHEDULER_H
-#define __INET_PACKETSCHEDULER_H
-
-#include "inet/queueing/base/PacketSchedulerBase.h"
-#include "inet/queueing/contract/IPacketSchedulerFunction.h"
+#include "inet/common/ProtocolTag_m.h"
+#include "inet/protocol/ReceiveWithProtocol.h"
+#include "inet/protocol/ProtocolHeader_m.h"
 
 namespace inet {
-namespace queueing {
 
-class INET_API PacketScheduler : public PacketSchedulerBase
+Define_Module(ReceiveWithProtocol);
+
+void ReceiveWithProtocol::handleMessage(cMessage *message)
 {
-  protected:
-    IPacketSchedulerFunction *packetSchedulerFunction = nullptr;
+    auto packet = check_and_cast<Packet *>(message);
+    auto header = packet->popAtFront<ProtocolHeader>();
+    auto protocol = Protocol::findProtocol(header->getProtocolId());
+    packet->addTagIfAbsent<PacketProtocolTag>()->setProtocol(protocol);
+    packet->addTagIfAbsent<DispatchProtocolReq>()->setProtocol(protocol);
+    send(packet, "out");
+}
 
-  protected:
-    virtual void initialize(int stage) override;
-    virtual IPacketSchedulerFunction *createSchedulerFunction(const char *schedulerClass) const;
-    virtual int schedulePacket() override;
+void ReceiveWithProtocol::confirm(Packet *packet, bool successful)
+{
+}
 
-  public:
-    virtual ~PacketScheduler() { delete packetSchedulerFunction; }
-};
-
-} // namespace queueing
 } // namespace inet
-
-#endif // ifndef __INET_PACKETSCHEDULERBASE_H
 

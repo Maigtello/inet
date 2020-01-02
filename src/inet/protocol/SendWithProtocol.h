@@ -15,31 +15,27 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETCLASSIFIER_H
-#define __INET_PACKETCLASSIFIER_H
+#ifndef __INET_SENDWITHPROTOCOL_H
+#define __INET_SENDWITHPROTOCOL_H
 
-#include "inet/queueing/base/PacketClassifierBase.h"
-#include "inet/queueing/contract/IPacketClassifierFunction.h"
+#include "inet/common/IProtocolRegistrationListener.h"
+#include "inet/protocol/IProtocol.h"
 
 namespace inet {
-namespace queueing {
 
-class INET_API PacketClassifier : public PacketClassifierBase
+class INET_API SendWithProtocol : public cSimpleModule, public IProtocol, public IProtocolRegistrationListener
 {
   protected:
-    IPacketClassifierFunction *packetClassifierFunction = nullptr;
-
-  protected:
-    virtual void initialize(int stage) override;
-    virtual IPacketClassifierFunction *createClassifierFunction(const char *classifierClass) const;
-    virtual int classifyPacket(Packet *packet) override;
+    virtual void handleMessage(cMessage *message) override;
 
   public:
-    virtual ~PacketClassifier() { delete packetClassifierFunction; }
+    virtual void confirm(Packet *packet, bool successful) override;
+
+    virtual void handleRegisterService(const Protocol& protocol, cGate *out, ServicePrimitive servicePrimitive) override;
+    virtual void handleRegisterProtocol(const Protocol& protocol, cGate *in, ServicePrimitive servicePrimitive) override;
 };
 
-} // namespace queueing
 } // namespace inet
 
-#endif // ifndef __INET_PACKETCLASSIFIER_H
+#endif // ifndef __INET_SENDWITHPROTOCOL_H
 

@@ -15,31 +15,30 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef __INET_PACKETCLASSIFIER_H
-#define __INET_PACKETCLASSIFIER_H
+#ifndef __INET_SENDWITHACKNOWLEDGE_H
+#define __INET_SENDWITHACKNOWLEDGE_H
 
-#include "inet/queueing/base/PacketClassifierBase.h"
-#include "inet/queueing/contract/IPacketClassifierFunction.h"
+#include "inet/protocol/IProtocol.h"
 
 namespace inet {
-namespace queueing {
 
-class INET_API PacketClassifier : public PacketClassifierBase
+class INET_API SendWithAcknowledge : public cSimpleModule, public IProtocol
 {
   protected:
-    IPacketClassifierFunction *packetClassifierFunction = nullptr;
+    simtime_t acknowledgeTimeout = -1;
+
+    int sequenceNumber = -1;
+    std::map<int, cMessage *> timers;
 
   protected:
     virtual void initialize(int stage) override;
-    virtual IPacketClassifierFunction *createClassifierFunction(const char *classifierClass) const;
-    virtual int classifyPacket(Packet *packet) override;
+    virtual void handleMessage(cMessage *message) override;
 
   public:
-    virtual ~PacketClassifier() { delete packetClassifierFunction; }
+    virtual void confirm(Packet *packet, bool successful) override;
 };
 
-} // namespace queueing
 } // namespace inet
 
-#endif // ifndef __INET_PACKETCLASSIFIER_H
+#endif // ifndef __INET_SENDWITHACKNOWLEDGE_H
 
