@@ -342,6 +342,8 @@ void EtherPhy::endRx(EthernetSignalBase *signal)
     if (rxState == RX_IDLE_STATE)
         changeRxState(RX_RECEIVING_STATE, simTime() - signal->getDuration());
     //KLUDGE end
+    if (signal->hasBitError())
+        ; //TODO
 
     if (rxState == RX_RECEIVING_STATE) {
         auto packet = decapsulate(check_and_cast<EthernetSignal*>(signal));
