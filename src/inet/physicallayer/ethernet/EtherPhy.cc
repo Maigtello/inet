@@ -198,7 +198,7 @@ void EtherPhy::receiveSignal(cComponent *source, simsignal_t signalID, cObject *
     if (signalID == PRE_MODEL_CHANGE) {
         if (auto gcobj = dynamic_cast<cPrePathCutNotification *>(obj)) {
             if (connected && ((physOutGate == gcobj->pathStartGate) || (physInGate == gcobj->pathEndGate))) {
-                disconnect();
+                handleDisconnected();
             }
         }
         else if (auto gcobj = dynamic_cast<cPreParameterChangeNotification *>(obj)) {
@@ -208,7 +208,7 @@ void EtherPhy::receiveSignal(cComponent *source, simsignal_t signalID, cObject *
                     && strcmp(gcobj->par->getName(), "disabled") == 0
                     /* && gcobj->newValue == true */ //TODO the new value of parameter currently unavailable
                     ) {
-                disconnect();
+                handleDisconnected();
             }
         }
     }
@@ -216,20 +216,20 @@ void EtherPhy::receiveSignal(cComponent *source, simsignal_t signalID, cObject *
         if (auto gcobj = dynamic_cast<cPostPathCreateNotification *>(obj)) {
             if ((physOutGate == gcobj->pathStartGate) || (physInGate == gcobj->pathEndGate)) {
                 if (checkConnected())
-                    connect();
+                    handleConnected();
             }
         }
         else if (auto gcobj = dynamic_cast<cPostParameterChangeNotification *>(obj)) {
             (void)gcobj;
             if (checkConnected())
-                connect();
+                handleConnected();
             else
-                disconnect();
+                handleDisconnected();
         }
     }
 }
 
-void EtherPhy::connect()
+void EtherPhy::handleConnected()
 {
     if (!connected) {
         connected = true;
@@ -246,7 +246,7 @@ void EtherPhy::connect()
     }
 }
 
-void EtherPhy::disconnect()
+void EtherPhy::handleDisconnected()
 {
     if (connected) {
         abortTx();

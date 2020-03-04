@@ -111,8 +111,8 @@ class INET_API EtherPhy : public cPhyModule, public cListener
 
     virtual void receiveSignal(cComponent *src, simsignal_t signalId, cObject *obj, cObject *details) override;
     bool checkConnected();
-    virtual void connect();
-    virtual void disconnect();
+    virtual void handleConnected();
+    virtual void handleDisconnected();
 
   public:
     virtual ~EtherPhy();
