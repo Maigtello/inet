@@ -283,9 +283,8 @@ void EtherPhy::startTx(EthernetSignalBase *signal)
     ASSERT(curTx == nullptr);
 
     curTx = signal;
-    auto duration = calculateDuration(signal);
-    send(signal, physOutGate, duration);
-    // sendPacketStart(signal, physOutGate, duration);
+    auto duration = calculateDuration(curTx);
+    sendPacketStart(curTx, physOutGate, duration);
     ASSERT(transmissionChannel->getTransmissionFinishTime() == simTime() + duration);
     scheduleAt(simTime() + duration, endTxMsg);
     changeTxState(TX_TRANSMITTING_STATE);
@@ -295,6 +294,8 @@ void EtherPhy::endTx()
 {
     ASSERT(txState == TX_TRANSMITTING_STATE);
     ASSERT(curTx != nullptr);
+    auto duration = calculateDuration(curTx);
+    sendPacketEnd(curTx, physOutGate, duration);
     emit(txFinishedSignal, 1);   //TODO
     curTx = nullptr;
     changeTxState(TX_IDLE_STATE);
@@ -329,6 +330,8 @@ Packet *EtherPhy::decapsulate(EthernetSignal *signal)
 void EtherPhy::startRx(EthernetSignalBase *signal)
 {
     // only the rx end received in full duplex mode
+    if (rxState == RX_IDLE_STATE)
+        changeRxState(RX_RECEIVING_STATE, simTime() - signal->getDuration());
 }
 
 void EtherPhy::endRx(EthernetSignalBase *signal)
@@ -338,10 +341,6 @@ void EtherPhy::endRx(EthernetSignalBase *signal)
     if (signal->getBitrate() != bitrate)
         throw cRuntimeError("Ethernet misconfiguration: MACs on the same link must be same bitrate %f Mbps (sender:%s, %f Mbps)", bitrate/1e6, signal->getSenderModule()->getFullPath().c_str(), signal->getBitrate()/1e6);
 
-    //KLUDGE: should set it with receptionOnStart or with receiveSignalStart
-    if (rxState == RX_IDLE_STATE)
-        changeRxState(RX_RECEIVING_STATE, simTime() - signal->getDuration());
-    //KLUDGE end
     if (signal->hasBitError())
         ; //TODO
 
