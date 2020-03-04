@@ -165,8 +165,7 @@ void EtherPhy::handleMessage(cMessage *message)
             startTx(signal);
         }
         else if (message->getArrivalGate() == physInGate) {
-            auto signal = check_and_cast<EthernetSignalBase *>(message);
-            endRx(signal);
+            receiveFromMedium(message);
         }
         else
             throw cRuntimeError("Received unknown message");
@@ -331,7 +330,7 @@ void EtherPhy::startRx(EthernetSignalBase *signal)
 {
     // only the rx end received in full duplex mode
     if (rxState == RX_IDLE_STATE)
-        changeRxState(RX_RECEIVING_STATE, simTime() - signal->getDuration());
+        changeRxState(RX_RECEIVING_STATE);
 }
 
 void EtherPhy::endRx(EthernetSignalBase *signal)
@@ -357,6 +356,21 @@ void EtherPhy::endRx(EthernetSignalBase *signal)
 
 void EtherPhy::abortRx()
 {
+}
+
+void EtherPhy::receivePacketStart(cPacket *packet)
+{
+    startRx(check_and_cast<EthernetSignalBase *>(packet));
+}
+
+void EtherPhy::receivePacketProgress(cPacket *packet, int bitPosition, simtime_t timePosition, int extraProcessableBitLength, simtime_t extraProcessableDuration)
+{
+    throw cRuntimeError("receivePacketProgress not implemented");
+}
+
+void EtherPhy::receivePacketEnd(cPacket *packet)
+{
+    endRx(check_and_cast<EthernetSignalBase *>(packet));
 }
 
 } // namespace physicallayer

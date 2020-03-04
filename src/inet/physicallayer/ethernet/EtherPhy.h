@@ -104,6 +104,11 @@ class INET_API EtherPhy : public cPhyModule, public cListener
     virtual void endTx();
     virtual void abortTx();
 
+    // overridden cPhyModule functions
+    virtual void receivePacketStart(cPacket *packet) override;
+    virtual void receivePacketProgress(cPacket *packet, int bitPosition, simtime_t timePosition, int extraProcessableBitLength, simtime_t extraProcessableDuration) override;
+    virtual void receivePacketEnd(cPacket *packet) override;
+
     Packet *decapsulate(EthernetSignal *signal);
     virtual void startRx(EthernetSignalBase *signal);
     virtual void endRx(EthernetSignalBase *signal);
