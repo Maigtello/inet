@@ -135,13 +135,6 @@ void EtherPhy::changeTxState(TxState newState)
 void EtherPhy::changeRxState(RxState newState)
 {
     simtime_t t = simTime();
-    changeRxState(newState, t);
-}
-
-void EtherPhy::changeRxState(RxState newState, simtime_t t)
-{
-    ASSERT(t >= lastRxStateChangeTime);
-
     totalRxStateTime[rxState] += t - lastRxStateChangeTime;
     lastRxStateChangeTime = t;
     if (newState != rxState) {
